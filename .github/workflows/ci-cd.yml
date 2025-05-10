@@ -1,0 +1,68 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando hay un push en la rama 'main'
+  pull_request:
+    branches:
+      - main  # Se ejecuta cuando hay una PR a la rama 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Check out el código
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Usa la versión de Node.js que estás utilizando en tu proyecto
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # Paso 4: Ejecutar las pruebas unitarias
+      - name: Run tests
+        run: npm test  # Asegúrate de que tienes un script de 'test' en tu package.json
+
+     
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # El job de despliegue depende del job de build
+
+    steps:
+      # Paso 1: Check out el código
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # Paso 4: Compilar y desplegar el backend (si es necesario)
+      - name: Deploy to production server
+        run: |
+          npm run build   # O cualquier comando que uses para preparar el backend para producción
+          # Aquí puedes añadir comandos para desplegar el backend, como usar Heroku, AWS, etc.
+
+      # Paso 5: Desplegar el frontend (si es necesario)
+      - name: Deploy frontend
+        run: |
+          npm run build   # Compila el frontend si es necesario
+          # Aquí puedes añadir comandos para desplegar el frontend a plataformas como Netlify, Vercel, etc.
+
+      # Paso 6: Notificar que el despliegue fue exitoso (opcional)
+      - name: Notify deployment success
+        run: echo "Deployment was successful!"
