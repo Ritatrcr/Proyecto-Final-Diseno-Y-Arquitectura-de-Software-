@@ -1,0 +1,785 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API Proyecto de software",
+    "description": "API para gestionar usuarios, autos y viajes de la aplicacion web Move U.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    },
+    {
+      "url": "TODO (URL GLOBAL)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "users",
+      "description": "Rutas relacionadas con los usuarios"
+    },
+    {
+      "name": "payments",
+      "description": "Rutas relacionadas con los pagos"
+    },
+    {
+      "name": "refunds",
+      "description": "Rutas relacionadas con los reembolsos"
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Registrar un nuevo usuario",
+        "tags": [
+          "users"
+        ],
+        "description": "Registra un nuevo usuario proporcionando su correo electrónico, nombre de usuario y contraseña.",
+        "operationId": "registerUser",
+        "requestBody": {
+          "description": "Datos del usuario para registrar",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User registered successfully"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYxZDk3ZTgwLTQyZTktNDJkYS04ZDAzLTM5OGJhZjA4ZjM1MCIsInV...OaIWG4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación o si el correo electrónico ya existe"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "description": "Permite a los usuarios registrados iniciar sesión usando su correo electrónico y contraseña.",
+        "tags": [
+          "users"
+        ],
+        "operationId": "loginUser",
+        "requestBody": {
+          "description": "Credenciales del usuario",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inicio de sesión exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Credenciales incorrectas"
+          },
+          "500": {
+            "description": "Error al intentar iniciar sesión"
+          }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "summary": "Crear un pago",
+        "description": "Crea un nuevo pago para un usuario autenticado.",
+        "tags": [
+          "payments"
+        ],
+        "operationId": "createPayment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Datos del pago",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "payment_method": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency",
+                  "payment_method",
+                  "description"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pago creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payment_id": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "payment_method": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "string"
+                        },
+                        "webhook": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faltan campos requeridos"
+          },
+          "500": {
+            "description": "Error al crear el pago"
+          }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos los pagos del usuario",
+        "tags": [
+          "payments"
+        ],
+        "description": "Obtiene todos los pagos realizados por el usuario autenticado.",
+        "operationId": "getUserPayments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de pagos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "payment_id": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "number"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "payment_method": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "customer_id": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error al obtener los pagos"
+          }
+        }
+      }
+    },
+    "/payments/{payment_id}": {
+      "get": {
+        "summary": "Obtener informacion de un pago por ID",
+        "tags": [
+          "payments"
+        ],
+        "description": "Permite consultar el estado de un pago específico.",
+        "operationId": "getPaymentStatus",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "description": "ID del pago",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Información del pago",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payment_id": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "payment_method": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "customer_id": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pago no encontrado"
+          },
+          "500": {
+            "description": "Error al obtener el estado del pago"
+          }
+        }
+      }
+    },
+    "/payments/webhook": {
+      "post": {
+        "summary": "Webhook para notificaciones de pago",
+        "description": "Recibe actualizaciones del estado de un pago desde un sistema externo. No requiere autenticación.",
+        "tags": [
+          "payments"
+        ],
+        "operationId": "paymentWebhook",
+        "requestBody": {
+          "description": "Datos enviados por el sistema externo para actualizar el estado de un pago.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event_type": {
+                    "type": "string",
+                    "example": "payment_status_update"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "payment_id": {
+                        "type": "string",
+                        "example": "payment123"
+                      },
+                      "new_status": {
+                        "type": "string",
+                        "example": "completed"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "event_type",
+                  "data",
+                  "data.payment_id",
+                  "data.new_status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado del pago actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Payment status updated"
+                    },
+                    "event_id": {
+                      "type": "string",
+                      "example": "8f3e72d5"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-03-18T10:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos o mal formateados"
+          },
+          "404": {
+            "description": "Pago no encontrado"
+          },
+          "500": {
+            "description": "Error procesando el webhook"
+          }
+        }
+      }
+    },
+    "/refunds": {
+      "post": {
+        "summary": "Solicitar un reembolso",
+        "tags": [
+          "refunds"
+        ],
+        "description": "Permite a un usuario solicitar un reembolso para un pago específico.",
+        "operationId": "createRefund",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Datos para solicitar el reembolso",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payment_id": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "payment_id",
+                  "amount",
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reembolso solicitado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refund_id": {
+                      "type": "string"
+                    },
+                    "payment_id": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "customer_id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "pending"
+                    },
+                    "requested_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faltan campos requeridos o error de validación"
+          },
+          "500": {
+            "description": "Error interno al procesar el reembolso"
+          }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos los reembolsos del usuario",
+        "tags": [
+          "refunds"
+        ],
+        "description": "Devuelve la lista de reembolsos realizados por el usuario autenticado.",
+        "operationId": "getUserRefunds",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de reembolsos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "refund_id": {
+                        "type": "string"
+                      },
+                      "payment_id": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "number"
+                      },
+                      "reason": {
+                        "type": "string"
+                      },
+                      "customer_id": {
+                        "type": "string"
+                      },
+                      "requested_at": {
+                        "type": "string"
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error al obtener los reembolsos"
+          }
+        }
+      }
+    },
+    "/refunds/{refund_id}": {
+      "get": {
+        "summary": "Obtener informacion de un reembolso por ID",
+        "description": "Obtiene un reembolso específico asegurando que el reembolso pertenece al usuario autenticado.",
+        "tags": [
+          "refunds"
+        ],
+        "operationId": "getRefundById",
+        "parameters": [
+          {
+            "name": "refund_id",
+            "in": "path",
+            "required": true,
+            "description": "El ID del reembolso a obtener.",
+            "schema": {
+              "type": "string",
+              "example": "refund123"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Información del reembolso encontrada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refund_id": {
+                      "type": "string",
+                      "example": "refund123"
+                    },
+                    "payment_id": {
+                      "type": "string",
+                      "example": "payment123"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 100
+                    },
+                    "reason": {
+                      "type": "string",
+                      "example": "Product damaged"
+                    },
+                    "customer_id": {
+                      "type": "string"
+                    },
+                    "requested_at": {
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-03-18T10:00:00Z"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "pending"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El usuario no está autorizado para ver este reembolso"
+          },
+          "404": {
+            "description": "Reembolso no encontrado"
+          },
+          "500": {
+            "description": "Error al recuperar el reembolso"
+          }
+        }
+      }
+    },
+    "/refunds/webhook": {
+      "post": {
+        "summary": "Webhook para notificaciones de reembolso",
+        "description": "Recibe actualizaciones del estado de un reembolso desde un sistema externo. No requiere autenticación.",
+        "tags": [
+          "refunds"
+        ],
+        "operationId": "refundWebhook",
+        "requestBody": {
+          "description": "Datos enviados por el sistema externo para actualizar el estado de un reembolso.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event_type": {
+                    "type": "string",
+                    "example": "refund_status_update"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "refund_id": {
+                        "type": "string",
+                        "example": "refund123"
+                      },
+                      "new_status": {
+                        "type": "string",
+                        "example": "processed"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "event_type",
+                  "data",
+                  "data.refund_id",
+                  "data.new_status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado del reembolso actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Refund status updated"
+                    },
+                    "event_id": {
+                      "type": "string",
+                      "example": "9c5b16f1"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-03-18T10:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos o mal formateados"
+          },
+          "404": {
+            "description": "Reembolso no encontrado"
+          },
+          "500": {
+            "description": "Error procesando el webhook"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
