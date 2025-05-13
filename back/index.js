@@ -9,17 +9,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Rutas de la API
+app.use('/api/payments', require('./operaciones/payments'));
+app.use('/api/refunds', require('./operaciones/refunds'));
+
+// Otras rutas
 app.use('/register', require('./user/register'));
 app.use('/login', require('./user/login'));
-app.use('/refunds', require('./operaciones/refunds'));
-app.use('/payments', require('./operaciones/payments'));
 
-const PORT = process.env.PORT || 3000;
-
+// Ruta para manejar 404
 app.use((req, res) => {
   res.status(404).json({ message: 'Path not found' });
 });
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
