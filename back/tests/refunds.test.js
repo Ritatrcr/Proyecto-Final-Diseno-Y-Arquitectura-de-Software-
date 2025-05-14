@@ -1,21 +1,15 @@
 const request = require('supertest');
 const app = require('../index');
-const generateTestToken = require('../utils/generateTestToken');
 
-const token = `Bearer ${generateTestToken()}`;
+const token = 'mocked_token';
+let createdRefundId;
 
 describe('Refunds API', () => {
-  let createdRefundId;
-
   it('debe crear un reembolso', async () => {
     const res = await request(app)
-      .post('/api/refunds')
+      .post('/refunds')
       .set('Authorization', token)
-      .send({
-        payment_id: 'testpaymentid', // Asegúrate de tener uno válido en pruebas reales
-        amount: 50,
-        reason: 'Test reason'
-      });
+      .send({ reason: 'Producto defectuoso' });
 
     expect(res.statusCode).toBe(201);
     createdRefundId = res.body.refund_id;
@@ -23,7 +17,7 @@ describe('Refunds API', () => {
 
   it('debe obtener todos los reembolsos del usuario', async () => {
     const res = await request(app)
-      .get('/api/refunds')
+      .get('/refunds')
       .set('Authorization', token);
 
     expect(res.statusCode).toBe(200);
@@ -32,7 +26,7 @@ describe('Refunds API', () => {
 
   it('debe obtener un reembolso por ID', async () => {
     const res = await request(app)
-      .get(`/api/refunds/${createdRefundId}`)
+      .get(`/refunds/${createdRefundId}`)
       .set('Authorization', token);
 
     expect(res.statusCode).toBe(200);
@@ -41,14 +35,8 @@ describe('Refunds API', () => {
 
   it('debe actualizar estado de reembolso por webhook', async () => {
     const res = await request(app)
-      .put('/api/refunds/webhook')
-      .send({
-        event_type: 'refund_status_update',
-        data: {
-          refund_id: createdRefundId,
-          new_status: 'approved'
-        }
-      });
+      .post(`/refunds/webhook/${createdRefundId}`)
+      .send({ status: 'aprobado' });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe('Refund status updated');
@@ -56,7 +44,7 @@ describe('Refunds API', () => {
 
   it('debe eliminar un reembolso', async () => {
     const res = await request(app)
-      .delete(`/api/refunds/${createdRefundId}`)
+      .delete(`/refunds/${createdRefundId}`)
       .set('Authorization', token);
 
     expect(res.statusCode).toBe(200);

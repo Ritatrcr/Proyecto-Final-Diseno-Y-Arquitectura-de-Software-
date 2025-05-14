@@ -1,22 +1,15 @@
 const request = require('supertest');
-const app = require('../index'); 
-const generateTestToken = require('../utils/generateTestToken');
+const app = require('../index');
 
-const token = `Bearer ${generateTestToken()}`;
+const token = 'mocked_token';
+let createdPaymentId;
 
 describe('Payments API', () => {
-  let createdPaymentId;
-
   it('debe crear un nuevo pago', async () => {
     const res = await request(app)
-      .post('/api/payments')
+      .post('/payments')
       .set('Authorization', token)
-      .send({
-        amount: 100,
-        currency: 'USD',
-        payment_method: 'card',
-        description: 'Test payment'
-      });
+      .send({ amount: 100 });
 
     expect(res.statusCode).toBe(201);
     expect(res.body.payment_id).toBeDefined();
@@ -25,7 +18,7 @@ describe('Payments API', () => {
 
   it('debe obtener todos los pagos del usuario', async () => {
     const res = await request(app)
-      .get('/api/payments')
+      .get('/payments')
       .set('Authorization', token);
 
     expect(res.statusCode).toBe(200);
@@ -34,7 +27,7 @@ describe('Payments API', () => {
 
   it('debe obtener un pago por ID', async () => {
     const res = await request(app)
-      .get(`/api/payments/${createdPaymentId}`)
+      .get(`/payments/${createdPaymentId}`)
       .set('Authorization', token);
 
     expect(res.statusCode).toBe(200);
@@ -43,14 +36,8 @@ describe('Payments API', () => {
 
   it('debe actualizar el estado del pago vía webhook', async () => {
     const res = await request(app)
-      .put('/api/payments/webhook')
-      .send({
-        event_type: 'payment_status_update',
-        data: {
-          payment_id: createdPaymentId,
-          new_status: 'completed'
-        }
-      });
+      .post(`/payments/webhook/${createdPaymentId}`)
+      .send({ status: 'refunded' });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe('Payment status updated');
@@ -58,7 +45,7 @@ describe('Payments API', () => {
 
   it('debe eliminar un pago', async () => {
     const res = await request(app)
-      .delete(`/api/payments/${createdPaymentId}`)
+      .delete(`/payments/${createdPaymentId}`)
       .set('Authorization', token);
 
     expect(res.statusCode).toBe(200);
